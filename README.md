@@ -19,7 +19,10 @@ A bunch of little projects written in Nix
   * `ln`, the natural logarithm
   * Various "random number" generators
 * `prime.nix` - An executable Nix file which outputs whether a number is prime or not
-  //TODO: Some sort of documentation here
+  To execute this file, use the `./prime.nix` command. To pass functions to this, you must use the `--arg` option with parameter name `x`, followed by a number. For example:
+  ```
+  ./prime.nix --arg x 1423
+  ```
 * `primeSieve.nix` - A prime sieve
 * `satSolver.nix` - A SAT solver
 * `streams.nix` - Lists of infinite length in Nix as well as some operations which can be performed on them
