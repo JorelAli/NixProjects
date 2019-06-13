@@ -24,10 +24,11 @@ with builtins; rec {
     if stringLength str1 == 0 then stringLength str2
     else if stringLength str2 == 0 then stringLength str1
     else let cost = if lastChar str1 == lastChar str2 then 0 else 1; in
-    let l1 = ((levenshtein (chop str1) str2) + 1);
-        l2 = ((levenshtein str2 (chop str2)) + 1);
-        l3 = ((levenshtein (chop str1) (chop str2)) + cost);
-    in minList [ l1 l2 l3 ];
+    minList [ 
+      ((levenshtein (chop str1) str2) + 1)
+      ((levenshtein str1 (chop str2)) + 1)
+      ((levenshtein (chop str1) (chop str2)) + cost)
+    ];
 
   lastChar = str: let strLen = stringLength str; in
     substring (strLen -1) strLen str;
