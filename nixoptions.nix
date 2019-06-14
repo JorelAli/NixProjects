@@ -8,13 +8,35 @@ rec {
 
   nixModules = <nixos> + "/nixos/modules";
 
+  testSet = getNixOptions exampleFile;
+
   getAllNixOptions = nodeDir: 
     let dirs = createDirTree nodeDir; in 
     2;
 
 
+  # Attrs -> [ Attrs ]
+  # { a = {}; } -> [ { a = {} } ]
+  innerSets' = set: 
+    foldl' (acc: attrName:
+      acc ++ [
+      { name = attrName; value = (if isAttrs set."${attrName}" then set."${attrName}" else null); }
+      ]
+
+    ) [] (attrNames set);
+
+  parseOptions'' = parent: optionSet: acc:
+  if optionSet ? _type then [] else
+
+    acc ++ /*(attrNames optionSet) ++ */
+    foldl' (a: {name, value}@setKP: 
+      a 
+      ++ [ (parent +"." +name) ]
+      ++ (if value != null then parseOptions'' name value [] else [])
+    ) [] (innerSets' optionSet);
+
   parseOptions' = optionSet:
-    lib.flatten (parseOptions "" optionSet);
+    lib.flatten (parseOptions "" optionSet []);
 
 #  parseOptions = optionSet: 
 #    let nestedOptions = parseOptions' optionSet []; in 
