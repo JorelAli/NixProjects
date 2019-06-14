@@ -11,7 +11,10 @@ rec {
   testSet = getNixOptions exampleFile;
 
   getAllNixOptions = nodeDir: 
-    let dirs = createDirTree nodeDir; in 
+    let dirs = createDirTree nodeDir; in
+    #For all dirs in createDirTree
+      # For all getNixFiles in dirs
+        # parseOptions
     2;
 
 
@@ -25,18 +28,20 @@ rec {
 
     ) [] (attrNames set);
 
+  parseOptions = optionSet: parseOptions'' "" optionSet [];
+
   parseOptions'' = parent: optionSet: acc:
   if optionSet ? _type then [] else
 
     acc ++ /*(attrNames optionSet) ++ */
     foldl' (a: {name, value}@setKP: 
       a 
-      ++ [ (parent +"." +name) ]
+      ++ [ (parent +"${if stringLength parent != 0 then "." else ""}" +name) ]
       ++ (if value != null then parseOptions'' name value [] else [])
     ) [] (innerSets' optionSet);
 
-  parseOptions' = optionSet:
-    lib.flatten (parseOptions "" optionSet []);
+#  parseOptions' = optionSet:
+#    lib.flatten (parseOptions "" optionSet []);
 
 #  parseOptions = optionSet: 
 #    let nestedOptions = parseOptions' optionSet []; in 
@@ -50,32 +55,21 @@ rec {
 #      acc ++ (attrNames optionSet) ++ 
 #      (foldl' (a: x: a ++ [(parseOptions x)]) [] innerOptions );
 
-    parseOptions = parentOptionName: optionSet: acc: 
-      if !(isAttrs optionSet) then acc else
-      if optionSet ? _type then acc
-      else let
-      innerOptions = 
-        foldl' (a: x: a ++ [(getAttr x optionSet)]) [] (attrNames optionSet);
-      in acc
-        ++ (builtins.map (z: if (isString z) then "${parentOptionName}.${z}" else z) (attrNames optionSet))#(map (x: parentOptionName + "." + x) (attrNames optionSet))
-        ++ (foldl' (a: x: a ++ [(parseOptions (reverseLookup optionSet x) x/*(getAttr x optionSet)*/ [])]) [] innerOptions)
-      ;
+#    parseOptions = parentOptionName: optionSet: acc: 
+#      if !(isAttrs optionSet) then acc else
+#      if optionSet ? _type then acc
+#      else let
+#      innerOptions = 
+#        foldl' (a: x: a ++ [(getAttr x optionSet)]) [] (attrNames optionSet);
+#      in acc
+#        ++ (builtins.map (z: if (isString z) then "${parentOptionName}.${z}" else z) (attrNames optionSet))#(map (x: parentOptionName + "." + x) (attrNames optionSet))
+#        ++ (foldl' (a: x: a ++ [(parseOptions (reverseLookup optionSet x) x/*(getAttr x optionSet)*/ [])]) [] innerOptions)
+#      ;
 
-
-
-
-
-
-
-
-
-    reverseLookup = outerSet: innerObj: 
-      let vals = (attrValues outerSet);
-      in head (foldl' (acc: x: acc ++ [(if outerSet."${x}" == innerObj then x else [])]) [] (attrNames outerSet));
-
-
-
-
+#    reverseLookup = outerSet: innerObj: 
+#      let vals = (attrValues outerSet);
+#      in head (foldl' (acc: x: acc ++ [(if outerSet."${x}" == innerObj then x else [])]) [] (attrNames outerSet));
+  
   getNixOptions = nixFile: 
     let parsedNixFile = import nixFile {inherit pkgs config lib ;}; in
     parsedNixFile.options;
