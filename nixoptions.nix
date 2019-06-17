@@ -10,12 +10,34 @@ rec {
 
   testSet = getNixOptions exampleFile;
 
+  filterList = [ "clone-config.nix" "nixpkgs.nix" "version.nix" "virtualbox.nix" 
+    "broadcom-43xx.nix" 
+    "radeon.nix"
+    "uvcdynctrl-udev-rules.nix"
+    "nix-fallback-paths.nix"
+    "build-vms.nix"
+    "documentation.nix"
+    "conf.nix"
+    "controller-manager.nix"
+    "kubelet.nix"
+    "proxy.nix"
+    "scheduler.nix"
+    "neo4j.nix"
+  ];
+
+  a' = getAllNixOptions nixModules;
+
   getAllNixOptions = nodeDir: 
-    let dirs = createDirTree nodeDir; in
+    let listOfNixFiles = filter (x: !elem (baseNameOf x) filterList) (getAllNixFiles nodeDir); in
+    foldl' (acc: file: acc ++ trace ( file) (parseOptions (getNixOptions file))) [] (sort lessThan listOfNixFiles)
+
     #For all dirs in createDirTree
       # For all getNixFiles in dirs
         # parseOptions
-    2;
+    ;
+
+  getAllNixFiles = nodeDir:
+    foldl' (acc: dir: acc ++ (getNixFiles dir)) [] (createDirTree nodeDir);
 
 
   # Attrs -> [ Attrs ]
@@ -71,8 +93,16 @@ rec {
 #      in head (foldl' (acc: x: acc ++ [(if outerSet."${x}" == innerObj then x else [])]) [] (attrNames outerSet));
   
   getNixOptions = nixFile: 
-    let parsedNixFile = import nixFile {inherit pkgs config lib ;}; in
-    parsedNixFile.options;
+    let parsedNixFile = import nixFile ((import <nixos> {}) // {utils={};}); in #{inherit pkgs config lib stdenv buildEnv libwebcam makeWrapper; 
+#      utils={}; #baseModules={}; #options=(x: x); 
+#    }; in
+#      if parsedNixFile.success then trace parsedNixFile.value parsedNixFile.value#.options
+#      else {};
+    if parsedNixFile ? options
+    then /*trace ("Parsing: " + baseNameOf nixFile)*/ parsedNixFile.options 
+    else trace ("No options found in: " + baseNameOf nixFile) {};
+#    trace ("Parsing: " + baseNameOf nixFile)
+#    parsedNixFile.options;
   
   createDirTree = nodeDir:
     let nodeDir' = toString nodeDir; in
