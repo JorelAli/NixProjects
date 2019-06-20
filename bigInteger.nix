@@ -43,10 +43,12 @@ in rec {
 
   ### Main Code ###########################################
 
-  # BigInteger specification:
-  # __toString = The String representation of a number (e.g. "123")
-  # value      = An int list of each digit (e.g. [ 1 2 3 ] )
-  # sign       = Whether positive or negative. true => positive
+  ###################################################################
+  # BigInteger specification:                                       #
+  # __toString = The String representation of a number (e.g. "123") #
+  # value      = An int list of each digit (e.g. [ 1 2 3 ] )        #
+  # sign       = Whether positive or negative. true => positive     #
+  ###################################################################
 
   # create :: String -> BigInteger
   create = str':
@@ -55,10 +57,16 @@ in rec {
         then substring 1 (stringLength str') str'
         else str';
     in {
-    __toString = self: (if self.sign then "" else "-") + listToStr (intListToStrList self.value);
+    __toString = self: 
+      (if self.sign then "" else "-")
+      + listToStr (intListToStrList self.value);
     value = strListToIntList (strToList str);
     sign = !(substring 0 1 str' == "-");
   };
+
+  # create' :: [ Int ] -> Bool -> BigInteger
+  create' = iList: sign: 
+    create ((if sign then "" else "-") + listToStr (intListToStrList (iList)));
 
   # add :: BigInteger -> BigInteger -> BigInteger
   add = bigInt1: bigInt2: let
@@ -81,7 +89,7 @@ in rec {
           add' new1 new2 1 ([(digitSum - 10 + carry)] ++ acc)
         else 
           add' new1 new2 0 ([(digitSum + carry)] ++ acc); in
-    add' bigInt1.value bigInt2.value 0 [];
+    create' (add' bigInt1.value bigInt2.value 0 []) true;
 
 
   
