@@ -71,6 +71,10 @@
     ) precision; in
     foldl' add 0 (ln' x 1000);
 
+  log = base: x: (ln x) / (ln base);
+
+  log2 = log 2;
+
   unsafeRand = bound: unsafeRandRange 0 bound;
   unsafeRandRange = min: max: toInt (builtins.readFile 
     (builtins.fetchurl {

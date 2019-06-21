@@ -2,10 +2,7 @@ with builtins;
 
 let 
   math = import ./math.nix;
-in rec {
-
-  ### Helper Methods ######################################
-
+  
   # strToList :: String -> [ String ]
   strToList = str:
     let strToList' = str: acc: 
@@ -41,7 +38,9 @@ in rec {
   # (Logical XOR)
   lXor = b1: b2: !(b1 == b2);
 
-  ### Main Code ###########################################
+in rec {
+
+  ### BigInteger Constructors #############################
 
   ###################################################################
   # BigInteger specification:                                       #
@@ -67,6 +66,8 @@ in rec {
   # create' :: [ Int ] -> Bool -> BigInteger
   create' = iList: sign: 
     create ((if sign then "" else "-") + listToStr (intListToStrList (iList)));
+
+  ### BigInteger Operations ###############################
 
   # add :: BigInteger -> BigInteger -> BigInteger
   add = bigInt1: bigInt2: let
