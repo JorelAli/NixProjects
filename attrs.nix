@@ -10,9 +10,13 @@ with builtins; rec {
     filterAttrs attrs1 (k: v: !attrs2 ? "${k}");
 
   # filterAttrs :: Attrs -> (String -> * -> Bool) -> Attrs
-  filterAttrs = attrs: predicate: 
+  filterAttrs = attrs: predicate:
+    foldl' (acc: x: acc // (if predicate x attrs."${x}" then {"${x}" = attrs."${x}";} else {})) {} (attrNames attrs);
+
+  # filterAttrs :: Attrs -> (String -> * -> Bool) -> Attrs
+  /*filterAttrs = attrs: predicate: 
     let attrs' = mapAttrs (k: v: if predicate k v then v else null) attrs;
         nulls  = foldl' (acc: x: acc ++ (if attrs'."${x}" == null then [x] else [])) [] (attrNames attrs');
     in
-      removeAttrs attrs' nulls;
+      removeAttrs attrs' nulls;*/
 }
