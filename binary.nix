@@ -12,8 +12,10 @@ in rec {
   # 8 -> [ true false false false ]
 
   # convertToBinary :: Int -> [ Bool ]
-  convertToBinary = dec: idk;
-
+  convertToBinary = dec: 
+    if dec == 0 then []
+    else (convertToBinary (dec / 2)) ++ [ (math.mod dec 2 == 1) ];
+  
   # convertToDecimal :: [ Bool ] -> Int
   convertToDecimal = bin: 
     let convertToDecimal' = bin: acc: 
